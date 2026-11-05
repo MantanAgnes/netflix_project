@@ -1,0 +1,60 @@
+
+
+
+PROCESS: Manual Upload of Netflix Validation Dataset
+
+
+Process Purpose:
+    This process involves manually uploading the main Netflix dataset
+    (netflix_titles.csv) into Azure Data Lake Storage Gen2.
+
+    The uploaded dataset acts as a prerequisite for the Azure Data Factory
+    ingestion pipeline. The pipeline must successfully validate the presence
+    of this dataset before proceeding with the ingestion of the other
+    Netflix datasets.
+
+Actions Performed:
+    - Obtained the main Netflix dataset.
+    - Manually uploaded netflix_titles.csv into the designated
+      Azure Data Lake Storage Gen2 location.
+    - Configured the dataset as the validation reference in Azure
+      Data Factory.
+    - Used the Validation activity to control the execution of
+      downstream ingestion activities.
+    - Allowed the ForEach Copy activity to execute only after
+      the validation activity succeeded.
+
+Validation Dependency:
+    The presence of netflix_titles.csv in ADLS Gen2 is required
+    before the four additional Netflix datasets can be ingested.
+
+Files Dependent on Validation:
+    - netflix_cast.csv
+    - netflix_category.csv
+    - netflix_countries.csv
+    - netflix_directors.csv
+
+Storage Platform:
+    Azure Data Lake Storage Gen2.
+
+Orchestration Platform:
+    Azure Data Factory.
+
+Expected Outcome:
+    If the validation dataset is found and the Validation activity
+    succeeds, the pipeline proceeds to ingest the four additional
+    Netflix datasets.
+
+    If validation does not succeed, the dependent ForEach activity
+    does not execute.
+
+Notes:
+    - The main dataset is uploaded manually rather than through
+      the GitHub Copy activity.
+    - The validation step acts as an ingestion dependency.
+    - This availability check does not, by itself, establish that
+      the dataset has valid records, correct column names, or
+      matching show_id values.
+
+
+
