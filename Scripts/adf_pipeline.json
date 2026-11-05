@@ -1,3 +1,57 @@
+
+/*
+================================================================================
+PIPELINE: Netflix Data Ingestion Pipeline (GitHub -> Azure Data Lake Storage)
+================================================================================
+
+Script Purpose:
+    This Azure Data Factory pipeline performs the ingestion of Netflix
+    datasets from a GitHub repository into Azure Data Lake Storage Gen2.
+
+Actions Performed:
+    - Retrieves source data from GitHub using a Web activity.
+    - Stores the Web activity response in a pipeline variable.
+    - Executes a Validation activity before starting ingestion.
+    - Uses a ForEach activity to iterate through the configured file array.
+    - Copies four Netflix CSV datasets into their respective destination folders.
+    - Uses parameterised source and sink datasets for reusable ingestion.
+
+Files Processed:
+    - netflix_cast.csv
+    - netflix_category.csv
+    - netflix_countries.csv
+    - netflix_directors.csv
+
+Parameters:
+    p_array (Array):
+        Contains the source filenames and destination folder names.
+
+Variables:
+    githubmetadata (String):
+        Stores the response returned by the GitHub Web activity.
+
+Dependencies:
+    Githubmetadata -> Set variable1 -> Validationgithub -> Forallthefiles
+
+Source:
+    GitHub raw content repository.
+
+Destination:
+    Azure Data Lake Storage Gen2.
+
+Usage:
+    Execute pipeline1 in Azure Data Factory.
+
+Notes:
+    - The ForEach activity processes the four configured files.
+    - The Copy activity is reused for each iteration.
+    - Validation must succeed before the ForEach activity starts.
+
+================================================================================
+*/
+
+
+
 {
     "name": "pipeline1",
     "properties": {
