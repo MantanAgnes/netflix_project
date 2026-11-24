@@ -57,6 +57,11 @@ An end-to-end, incremental **Medallion Architecture** built on **Azure Data Fact
 #### 4. Pipeline Orchestration & BI (images/ & docs/)
 
 * **Databricks Workflows:** Chains Bronze Auto Loader, parent silver_layer_titles, parallel For Each lookup processing, and Gold star-schema refreshes in strict dependency order.
+*  **Two-Stage Event-Driven Orchestration:**
+  
+    **Scheduled Ingestion (ADF):** An Azure Data Factory schedule trigger runs `pipeline1` to pull updated GitHub CSVs into the ADLS Gen2 `raw/` landing zone.
+   
+    **File-Arrival Lakehouse Trigger (ADLS Gen2 → Databricks):** A **Databricks File Arrival trigger** monitors `abfss://raw@mynetflixproject.dfs.core.windows.net/`. Whenever new files land,whether from ADF or a direct upload of `netflix_titles`,it automatically launches the Databricks Workflow (`Bronze Auto Loader` → `Silver Titles` → parallel `For Each` lookup worker → `Gold Star Schema`).
 * **Databricks AI/BI Dashboard & Genie:** Exposes 5 pre-aggregated SQL views (vw_content_overview, vw_genre_performance, vw_country_catalog, vw_top_talent, vw_monthly_addition_trends) for interactive visualisations and natural-language querying.
 
  
