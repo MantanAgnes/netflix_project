@@ -1,13 +1,13 @@
 #### Netflix End-to-End Azure Data Engineering Lakehouse
 
-An end-to-end, incremental **Medallion Architecture** built on **Azure Data Factory**, **Azure Databricks**, **Delta Lake**, **Unity Catalog**, and **Azure Data Lake Storage Gen2 (ADLS Gen2)**. This project orchestrates raw multi-file ingestion into a governed **Kimball Dimensional Star Schema**, powering analytical SQL views and a **Databricks AI/BI Dashboard with Genie**. 
+An end-to-end, incremental **Medallion Architecture** built on **Azure Data Factory**, **Azure Databricks**, **Delta Lake**, **Unity Catalog**, and **Azure Data Lake Storage Gen2 (ADLS Gen2)**. This project integrates multi-source raw files into a governed **Kimball Dimensional Star Schema**, powering analytical SQL views and a **Databricks AI/BI Dashboard with Genie**. 
 
 #### Architecture Overview
 
-
-[GitHub Raw CSVs: 4 Lookup Files]      [Local CSV: netflix_titles]
-       │  (Azure Data Factory Pipelines)            |  (Direct Upload)
-       ▼                                            
+```text
+[GitHub Raw CSVs: 4 Lookup Files]           [Local CSV: netflix_titles]
+       │  (Azure Data Factory Pipelines)            │  (Direct Upload)
+       ▼                                            ▼
 [ADLS Gen2: raw/ (Unified Landing Zone for all 5 Datasets)]
        │
        │  (Databricks Auto Loader + Checkpoints)
@@ -26,12 +26,14 @@ An end-to-end, incremental **Medallion Architecture** built on **Azure Data Fact
        ▼
 [Analytics & Self-Service BI] ───► 5 Pre-Aggregated SQL Views + Databricks AI/BI Dashboard & Genie
 
+```
+
 #### Key Engineering Highlights
 
-#### 1. Cloud Ingestion & Orchestration (adf/ & databricks/01_bronze/)
+#### 1. Multi-Source Cloud Ingestion (adf/ & databricks/01_bronze/)
 
-* **Azure Data Factory (ADF):** Automates initial landing of raw multi-entity Netflix CSV files (netflix_titles, netflix_directors, netflix_cast, netflix_countries, netflix_category) into ADLS Gen2 raw/.
-* **Databricks Auto Loader (cloudFiles):** Incrementally ingests incoming raw files into Bronze Delta tables with schema inference, _rescued_data capture, and ingestion audit columns (_source_file, _ingested_at).
+* **Hybrid Raw Ingestion into ADLS Gen2:** Automated ingestion of the four relational lookup files (netflix_directors, netflix_cast, netflix_countries, netflix_category) from GitHub via **Azure Data Factory (ADF)** HTTP pipelines, combined with direct landing of the core netflix_titles dataset into the ADLS Gen2 raw/ container.
+* **Databricks Auto Loader (cloudFiles):** Incrementally ingests all five raw datasets into Bronze Delta tables using schema inference, _rescued_data capture, and ingestion audit columns (_source_file, _ingested_at).
 
 #### 2. Data Quality, Quarantine & Reusable Workers (databricks/02_silver/)
 
@@ -47,9 +49,6 @@ An end-to-end, incremental **Medallion Architecture** built on **Azure Data Fact
 #### 4. Pipeline Orchestration & BI (images/ & docs/)
 
 * **Databricks Workflows:** Chains Bronze Auto Loader, parent silver_layer_titles, parallel For Each lookup processing, and Gold star-schema refreshes in strict dependency order.
-
- 
-
 * **Databricks AI/BI Dashboard & Genie:** Exposes 5 pre-aggregated SQL views (vw_content_overview, vw_genre_performance, vw_country_catalog, vw_top_talent, vw_monthly_addition_trends) for interactive visualisations and natural-language querying.
 
  
@@ -61,15 +60,21 @@ An end-to-end, incremental **Medallion Architecture** built on **Azure Data Fact
 * **Processing & Storage Format:** Azure Databricks, Apache Spark (PySpark), Structured Streaming, Delta Lake (MERGE)
 * **Governance & BI:** Unity Catalog, Databricks SQL, AI/BI Dashboards & Genie
 
-#### Repository Structure
-├── adf/                        # Azure Data Factory pipeline & linked service JSON definitions
+## Repository Structure
+
+```text
+netflix-azure-lakehouse/
+├── adf/                    # Azure Data Factory configurations
+│   ├── pipeline/           # Parameterised ingestion pipeline
+│   ├── dataset/            # Source and destination datasets
+│   └── linkedService/      # Connection definitions
 ├── databricks/
-│   ├── 01_bronze/              # Parameterised Auto Loader incremental ingestion
-│   ├── 02_silver/              # Parent titles cleaning & reusable lookup worker with quarantine
-│   └── 03_gold/                # 11-table Star Schema builder & 5 analytical SQL views
-├── datasets/                   # Sample / reference schema metadata
-├── docs/                       # Workflow orchestration notes & data dictionary
-├── images/                     # Workflow DAG & AI/BI Dashboard screenshots
-└── README.md
-
-
+│   ├── 01_bronze/          # Incremental Auto Loader ingestion
+│   ├── 02_silver/          # Cleansing, validation and quarantine
+│   └── 03_gold/            # Star schema and analytical SQL views
+├── datasets/               # Source datasets
+├── docs/                   # Technical documentation and data dictionary
+├── images/                 # Architecture, workflows and BI screenshots
+├── tests/                  # Data quality checks and validation evidence
+└── README.md               # Project overview and implementation guide
+```
