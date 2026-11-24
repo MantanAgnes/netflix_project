@@ -32,6 +32,14 @@ An end-to-end, incremental **Medallion Architecture** built on **Azure Data Fact
 
 #### 1. Multi-Source Cloud Ingestion (adf/ & databricks/01_bronze/)
 
+* **Azure Data Factory (adfnetflix-agnes — pipeline1):** Built a parameterised, metadata-driven control flow (p_array) to automate ingesting the four relational lookup files (netflix_directors, netflix_cast, netflix_countries, netflix_category) from GitHub into ADLS Gen2 raw/:
+  
+	• Metadata Lookup & State Capture: Uses a Web activity (Githubmetadata) and Set variable (Set variable1) to inspect source repository metadata.
+
+	• Pre-Ingestion Validation: Uses a Validation activity (Validationgithub with ds_validation / ds_validation1) to confirm source files exist before triggering data movement.
+
+	• Dynamic Parallel Copy: Iterates over p_array via a ForEach loop executing a parameterised Copy Data activity (ds_github → ds_sink), alongside direct landing of netflix_titles into ADLS Gen2 raw/.
+
 * **Hybrid Raw Ingestion into ADLS Gen2:** Automated ingestion of the four relational lookup files (netflix_directors, netflix_cast, netflix_countries, netflix_category) from GitHub via **Azure Data Factory (ADF)** HTTP pipelines, combined with direct landing of the core netflix_titles dataset into the ADLS Gen2 raw/ container.
 * **Databricks Auto Loader (cloudFiles):** Incrementally ingests all five raw datasets into Bronze Delta tables using schema inference, _rescued_data capture, and ingestion audit columns (_source_file, _ingested_at).
 
